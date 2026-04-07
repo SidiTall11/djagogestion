@@ -9,6 +9,7 @@ data_dump.json
 media/
 staticfiles/
 .env
+venv/
 
 # Node
 node_modules/
