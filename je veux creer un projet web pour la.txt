@@ -1,0 +1,301 @@
+je veux creer un projet web pour la gestion  des petite et moyenne entreprises et pour les commerçant.La base de donner sera mysql avec WAMPSERVER .Je vais te donner le cahier de charge puis le descriptif:
+Voici le cahier de charge:
+CAHIER DES CHARGES COMPLET ET DÉTAILLÉ
+Application de Gestion Financière et Commerciale Simplifiée & Intelligente
+1. PRÉSENTATION GÉNÉRALE DU PROJET
+1.1 Contexte
+Les PME, TPE et commerçants rencontrent des difficultés dans la gestion quotidienne de leurs finances, de leurs stocks et de leurs ventes. Les solutions existantes sont souvent complexes, coûteuses ou inadaptées aux petites structures.
+1.2 Objectif Principal
+Développer une application Web et Mobile permettant : * La gestion financière complète * La gestion commerciale (achat / vente) * La gestion des produits et du stock * Le suivi des dettes et créances * La génération de rapports analytiques * L’aide à la décision
+1.3 Objectifs Spécifiques
+•	Centraliser toutes les données financières et commerciales
+•	Automatiser les calculs (marges, bénéfices, flux de trésorerie)
+•	Réduire les erreurs humaines
+•	Offrir une visibilité en temps réel
+•	Améliorer la rentabilité des utilisateurs
+2. PÉRIMÈTRE DU PROJET
+2.1 Inclus dans le projet
+•	Application Web
+•	Application Mobile
+•	API sécurisée
+•	Base de données centralisée
+•	Système d’authentification
+•	Modules financiers et commerciaux
+2.2 Non inclus
+•	Intégration bancaire directe (phase ultérieure)
+•	Gestion RH avancée
+•	Comptabilité réglementaire complète
+3. UTILISATEURS DU SYSTÈME
+1.	Administrateur PME
+2.	Commerçant
+3.	Agent Caissier/Achat
+4.	Agent Dette
+5.	Comptable (lecture seule)
+4. EXIGENCES FONCTIONNELLES
+4.1 AUTHENTIFICATION & SÉCURITÉ
+•	Inscription (PME ou Commerçant)
+•	Connexion sécurisée
+•	Réinitialisation mot de passe
+•	Gestion des rôles
+•	Journal d’activité
+•	Déconnexion automatique après inactivité
+4.2 MODULE FINANCIER
+4.2.1 Tableau de Bord
+•	Solde actuel
+•	Total revenus
+•	Total dépenses
+•	Résultat net
+•	Graphiques d’évolution
+•	Alertes automatiques
+4.2.2 Gestion des Revenus
+•	Enregistrer un revenu
+•	Modifier un revenu
+•	Supprimer un revenu
+•	Catégorisation
+•	Facturation client
+•	Vente à crédit (créance automatique)
+4.2.3 Gestion des Dépenses
+•	Enregistrer une dépense
+•	Catégorisation
+•	Ajout facture fournisseur
+•	Achat à crédit (dette automatique)
+•	Dépenses récurrentes
+4.2.4 Gestion des Dettes et Créances
+•	Ajouter dette fournisseur
+•	Ajouter créance client
+•	Enregistrer remboursement
+•	Historique paiements
+•	Alertes échéances
+4.2.5 Budgets
+•	Définir budget par catégorie
+•	Comparaison réel/prévisionnel
+•	Alertes dépassement
+4.2.6 Rapports Financiers
+•	Journalier
+•	Hebdomadaire
+•	Mensuel
+•	Annuel
+•	Compte de résultat simplifié
+•	Flux de trésorerie
+•	Export PDF / Excel / CSV
+4.3 MODULE COMMERCIAL (COMMERÇANT)
+4.3.1 Gestion des Produits
+•	Ajouter produit
+•	Modifier produit
+•	Supprimer produit
+•	Définir prix d’achat
+•	Définir prix de vente
+•	Définir seuil minimum
+•	Ajouter image
+•	Code produit (SKU)
+4.3.2 Gestion des Catégories
+•	Ajouter catégorie
+•	Modifier catégorie
+•	Supprimer catégorie
+4.3.3 Gestion des Fournisseurs
+•	Ajouter fournisseur
+•	Modifier
+•	Supprimer
+•	Historique achats
+•	Solde fournisseur
+4.3.4 Gestion des Clients
+•	Ajouter client
+•	Modifier
+•	Supprimer
+•	Historique ventes
+•	Solde créance
+4.3.5 Gestion des Achats (Approvisionnement)
+•	Créer bon d’achat
+•	Sélection produits
+•	Définir quantité
+•	Définir prix unitaire
+•	Calcul total automatique
+•	Mise à jour automatique du stock
+•	Génération automatique dépense
+Règle métier : Stock = Stock actuel + Quantité achetée
+4.3.6 Gestion des Ventes
+•	Créer vente
+•	Sélection produits
+•	Vérification stock
+•	Définir quantité
+•	Calcul total automatique
+•	Calcul marge brute
+•	Mise à jour automatique stock
+•	Génération automatique revenu
+•	Vente à crédit (créance)
+Règle métier : Si Stock >= Quantité demandée → autoriser Sinon → bloquer Stock = Stock actuel - Quantité vendue
+4.3.7 Gestion du Stock
+•	Consultation stock actuel
+•	Historique mouvements
+•	Alertes stock faible
+•	Valorisation stock total
+4.3.8 Rapports Commerciaux
+•	Rapport ventes journalières
+•	Rapport ventes mensuelles
+•	Marge par produit
+•	Top produits vendus
+•	Rapport inventaire
+4.4 MODULE PME (ADMINISTRATEUR)
+4.4.1 Gestion des Agents
+•	Créer agent (max 3)
+•	Attribuer rôle
+•	Modifier permissions
+•	Désactiver agent
+4.4.2 Analyse Avancée
+•	Indicateurs de performance
+•	Taux d’endettement
+•	Analyse marge globale
+•	Prévisions financières
+4.4.3 Collaboration Comptable
+•	Accès lecture seule
+•	Export données comptables
+5. FONCTIONNALITÉS MOBILE
+•	Vente rapide
+•	Scan code-barres
+•	Scan facture (OCR)
+•	Mode hors ligne
+•	Synchronisation automatique
+•	Notifications push
+6. EXIGENCES NON FONCTIONNELLES
+6.1 Performance
+•	Temps de réponse < 3 secondes
+•	Support minimum 500 utilisateurs simultanés
+6.2 Sécurité
+•	HTTPS obligatoire
+•	Hashage des mots de passe
+•	Protection CSRF
+•	Journalisation des actions
+•	Sauvegarde automatique quotidienne
+6.3 Disponibilité
+•	Disponibilité cible : 99%
+6.4 Compatibilité
+•	Navigateurs modernes
+•	Android (version récente)
+7. ARCHITECTURE TECHNIQUE
+Backend
+•	Framework Django
+•	API REST sécurisée
+•	Authentification JWT
+Frontend Web
+•	React.js
+•	Interface responsive
+Mobile
+•	Flutter
+Base de Données
+•	MySQL
+•	Sauvegardes régulières
+8. MODÈLE DE DONNÉES (TABLES PRINCIPALES)
+Tables principales : * users * enterprises * agents * products * categories * suppliers * customers * purchases * purchase_items * sales * sale_items * revenues * expenses * debts * receivables * budgets * notifications * stock_movements
+9. PLANIFICATION ESTIMATIVE
+Durée estimée : 8 à 10 semaines * Phase 1 : Analyse & conception * Phase 2 : Développement backend * Phase 3 : Développement frontend * Phase 4 : Développement mobile * Phase 5 : Tests & déploiement
+10. LIVRABLES
+1.	Code source complet
+2.	Documentation technique
+3.	Guide installation
+4.	Script base de données
+5.	Version déployée en ligne
+11. CONCLUSION
+Cette application vise à fournir une solution complète combinant gestion financière et gestion commerciale pour PME et commerçants, avec une architecture moderne, sécurisée et évolutive.
+Voici le descriptif:
+1. C’est quoi exactement ton application ?
+Ton application est un système numérique qui permet à une entreprise ou un commerçant de gérer : * Son argent
+(revenus, dépenses, dettes) * Ses produits * Ses achats * Ses ventes * Son stock * Ses rapports financiers
+Elle fonctionne sur : * Web (ordinateur) * Mobile (smartphone)
+Toutes les données sont stockées dans une base sécurisée et synchronisées en temps réel.
+
+2. Fonctionnement global étape par étape
+Étape 1 : Création de compte
+Un utilisateur choisit son profil : * PME * Commerçant
+Il crée son compte avec ses informations. Une fois connecté, il arrive sur son tableau de bord.
+
+3. Tableau de bord (le centre de contrôle)
+Le tableau de bord affiche : * Combien d’argent il a * Combien il a gagné * Combien il a dépensé * Ses dettes * Ses
+créances * Son stock * Des graphiques d’évolution
+C’est la vue générale de la santé de son activité.
+
+4. Fonctionnalités par utilisateur
+A. PROFIL COMMERÇANT
+C’est un vendeur indépendant qui achète et revend des produits.
+1. Gestion des produits
+Il peut : * Ajouter un produit * Modifier un produit * Supprimer un produit
+Définir : * Prix d’achat * Prix de vente * Quantité en stock * Seuil minimum
+2. Achat de produits (Approvisionnement)
+Quand il achète des marchandises :
+Il enregistre : * Le fournisseur * Les produits achetés * La quantité * Le prix
+Le système : * Augmente automatiquement le stock * Ajoute une dépense financière * Crée une dette si achat à crédit
+3. Vente de produits
+Quand il vend :
+Il sélectionne : * Le produit * La quantité
+Le système : * Vérifie que le stock est suffisant * Diminue automatiquement le stock * Calcule le total * Calcule la marge
+* Ajoute un revenu * Crée une créance si vente à crédit
+4. Gestion du stock
+Il peut voir : * Les produits en rupture * Les produits les plus vendus * La valeur totale de son stock
+5. Clients et fournisseurs
+
+Il peut : * Ajouter des clients * Ajouter des fournisseurs * Voir qui lui doit de l’argent * Voir à qui il doit de l’argent
+6. Rapports
+Il peut générer : * Rapport des ventes * Rapport des bénéfices * Rapport des produits les plus rentables * Rapport
+mensuel
+B. PROFIL PME (Fondateur / Administrateur)
+C’est un chef d’entreprise plus structuré. En plus de tout ce que fait le commerçant, il peut :
+1. Créer des agents
+Il peut créer jusqu’à 3 agents : * Agent Caissier * Agent Dette
+Il contrôle leurs permissions.
+2. Voir toute la performance globale
+• Analyse des marges
+• Taux d’endettement
+• Flux de trésorerie
+• Budget vs Réel
+3. Gérer les budgets
+Il peut : * Fixer un budget mensuel * Recevoir des alertes en cas de dépassement
+4. Prévisions financières
+Il peut simuler : * “Si j’augmente mes charges” * “Si je recrute” * “Si mes ventes baissent”
+5. Collaboration comptable
+Il peut donner accès à un comptable en lecture seule.
+C. AGENT CAISSIER
+Peut : * Enregistrer ventes * Enregistrer achats
+Ne peut pas : * Modifier les paramètres * Supprimer les données importantes
+D. AGENT DETTE
+Peut : * Gérer dettes * Gérer créances * Enregistrer remboursements
+
+5. Fonctionnement sur mobile
+Le mobile permet : * Vente rapide * Scan facture * Scan code-barres * Saisie hors ligne * Notification stock faible
+
+6. Exemple concret
+Imaginons un commerçant vend des téléphones. * Il achète 10 téléphones à 50 000 FCFA. → Le stock devient 10. * Il
+vend 2 téléphones à 65 000 FCFA. → Stock devient 8. → Le système calcule la marge. → Le revenu est enregistré. * Le
+client paie plus tard. → Une créance est créée. → Quand il paie, la créance est soldée.
+Tout est automatique.
+
+7. Ce que ton application fait réellement
+
+Elle connecte : * Achat → Stock → Vente → Revenu → Rapport → Décision
+Tout est synchronisé.
+
+8. Maintenant je me mets à la place d’un COMMERÇANT
+Points forts :
+• Simple
+• Tout en un
+• Calcul automatique des bénéfices
+• Stock sécurisé
+• Moins d’erreurs
+• Gain de temps
+Critiques :
+• Il faut que l’interface soit très simple
+• Il ne faut pas trop compliquer avec des KPIs techniques
+• Le mode offline est obligatoire
+• Il faut que ça fonctionne même avec faible connexion
+• Le système doit être rapide
+
+9. Maintenant je me mets à la place d’un FONDATEUR PME
+Points forts :
+• Vision claire de la trésorerie
+• Contrôle des agents
+• Rapports structurés
+• Prévisions utiles
+• Centralisation des données
+Critiques :
+• Il faut une très forte sécurité
+• Il faut un système de sauvegarde automatique
+• Les rapports doivent être exportables pour la comptabilité
+• Il faudrait éventuellement intégrer la fiscalité locale
