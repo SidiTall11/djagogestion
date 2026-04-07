@@ -1,0 +1,14 @@
+{
+  "outputDirectory": "frontend_web/dist",
+  "build": {
+    "env": {
+      "VITE_API_URL": "https://djagogestion-api.onrender.com/api/"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
