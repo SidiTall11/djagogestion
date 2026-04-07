@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: djagogestion-api
+    env: python
+    rootDir: backend_api
+    region: frankfurt
+    plan: free
+    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --noinput"
+    startCommand: "gunicorn backend_api.wsgi"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: DEBUG
+        value: "False"
+      - key: DATABASE_URL
+        value: "postgresql://neondb_owner:npg_9XManRCGILu6@ep-bold-salad-an356dnw.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require"
+      - key: SECRET_KEY
+        generateValue: true
