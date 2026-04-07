@@ -16,7 +16,8 @@ import dj_database_url
 from dotenv import load_dotenv
 
 # Charger les variables du fichier .env si présent
-load_dotenv()
+env_path = os.path.join(BASE_DIR, '.env')
+load_dotenv(env_path)
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-amz7!u#61^-a%t(4sauha=5j2ub!tmxu@@dxaa8u36#4s5@*8-')
@@ -153,11 +154,10 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Email Configuration (pour Password Reset)
-# On utilise la console en base (à remplacer en production par vrai SMTP)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'votre_email@gmail.com'
-# EMAIL_HOST_PASSWORD = 'app_password'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
