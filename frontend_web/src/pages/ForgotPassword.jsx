@@ -19,7 +19,11 @@ export default function ForgotPassword() {
       await api.post('password_reset/', { email });
       setMsg('Un e-mail de réinitialisation a été envoyé à cette adresse (si elle existe).');
     } catch (err) {
-      setError('Erreur lors de la demande. Vérifiez l\'adresse e-mail.');
+      if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+        setError('Le serveur met du temps à répondre, veuillez réessayer dans quelques secondes.');
+      } else {
+        setError('Erreur lors de la demande. Vérifiez l\'adresse e-mail et réessayez.');
+      }
     } finally {
       setLoading(false);
     }
