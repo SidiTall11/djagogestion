@@ -83,9 +83,14 @@ export default function Contacts() {
       const endpoint = activeTab === 'customers' ? 'sales/' : 'purchases/';
       const param = activeTab === 'customers' ? 'customer' : 'supplier';
       const res = await api.get(`${endpoint}?${param}=${contact.id}`);
-      setHistoryData(res.data);
-    } catch (e) { console.error(e); }
-    finally { setLoadingHistory(false); }
+      // L'API est paginée, les données sont dans 'results'
+      setHistoryData(res.data.results || res.data);
+    } catch (e) {
+      console.error("Erreur historique:", e);
+      setHistoryData([]);
+    } finally {
+      setLoadingHistory(false);
+    }
   };
 
   const list = activeTab === 'customers' ? customers : suppliers;
@@ -181,23 +186,44 @@ export default function Contacts() {
 
       {/* Modal Historique */}
       {showHistoryModal && historyContact && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 200 }}>
-          <div className="glass-panel" style={{ width: '90%', maxWidth:'600px', maxHeight: '80vh', display: 'flex', flexDirection: 'column', border: `2px solid ${accentColor}` }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-               <h3>Historique : {historyContact.name}</h3>
-               <X size={24} style={{ cursor: 'pointer' }} onClick={() => setShowHistoryModal(false)} />
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 200 }}>
+          <div className="glass-panel" style={{ width: '90%', maxWidth:'600px', maxHeight: '85vh', display: 'flex', flexDirection: 'column', border: `2px solid ${accentColor}`, padding: '0' }}>
+            <div style={{ padding: '24px', borderBottom: '1px solid var(--glass-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+               <h3 style={{ margin: 0 }}>Historique : {historyContact.name}</h3>
+               <X size={24} style={{ cursor: 'pointer', color: 'var(--text-muted)' }} onClick={() => setShowHistoryModal(false)} />
             </div>
-            <div style={{ overflowY: 'auto', flex: 1 }}>
-               {loadingHistory ? <p>Chargement...</p> : historyData.length === 0 ? <p>Aucune transaction.</p> : (
-                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            
+            <div style={{ overflowY: 'auto', flex: 1, padding: '24px' }}>
+               {loadingHistory ? (
+                 <div style={{ textAlign: 'center', padding: '40px' }}>Chargement...</div>
+               ) : historyData.length === 0 ? (
+                 <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>Aucune transaction trouvée.</div>
+               ) : (
+                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                    {historyData.map(tx => (
-                     <div key={tx.id} style={{ padding: '12px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', display: 'flex', justifyContent: 'space-between' }}>
-                        <div>Facture #{tx.id}<br/><small>{new Date(tx.date).toLocaleDateString()}</small></div>
-                        <div style={{fontWeight:'bold'}}>{parseFloat(tx.total_amount).toLocaleString()} FCFA</div>
+                     <div key={tx.id} style={{ padding: '16px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', border: '1px solid var(--glass-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <div style={{ fontWeight: '600', marginBottom: '4px' }}>{activeTab === 'customers' ? 'Vente' : 'Achat'} #{tx.id}</div>
+                          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{new Date(tx.date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })}</div>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                          <div style={{ fontWeight: 'bold', color: activeTab === 'customers' ? 'var(--accent-green)' : 'var(--accent-orange)', fontSize: '1.1rem' }}>
+                            {parseFloat(tx.total_amount).toLocaleString()} FCFA
+                          </div>
+                          {tx.is_credit && (
+                            <span style={{ fontSize: '0.7rem', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--accent-red)', padding: '2px 6px', borderRadius: '4px', marginTop: '4px', display: 'inline-block' }}>
+                              À Crédit
+                            </span>
+                          )}
+                        </div>
                      </div>
                    ))}
                  </div>
                )}
+            </div>
+            
+            <div style={{ padding: '16px 24px', borderTop: '1px solid var(--glass-border)', textAlign: 'center' }}>
+              <button className="btn-primary" onClick={() => setShowHistoryModal(false)} style={{ background: 'transparent', border: '1px solid var(--glass-border)', color: 'var(--text-muted)', width: '100% border: none' }}>Fermer</button>
             </div>
           </div>
         </div>

@@ -22,7 +22,9 @@ class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.none()
 
     def get_queryset(self):
-        return Product.objects.filter(enterprise=self.request.user.enterprise).order_by('-created_at')
+        return Product.objects.filter(enterprise=self.request.user.enterprise)\
+            .select_related('category')\
+            .order_by('-created_at')
 
     def perform_create(self, serializer):
         serializer.save(enterprise=self.request.user.enterprise)
@@ -59,4 +61,6 @@ class StockMovementViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = StockMovement.objects.none()
 
     def get_queryset(self):
-        return StockMovement.objects.filter(product__enterprise=self.request.user.enterprise).order_by('-date')
+        return StockMovement.objects.filter(product__enterprise=self.request.user.enterprise)\
+            .select_related('product')\
+            .order_by('-date')

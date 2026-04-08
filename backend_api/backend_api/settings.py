@@ -19,13 +19,13 @@ from dotenv import load_dotenv
 env_path = os.path.join(BASE_DIR, '.env')
 load_dotenv(env_path)
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-amz7!u#61^-a%t(4sauha=5j2ub!tmxu@@dxaa8u36#4s5@*8-')
+# SÉCURITÉ : Ne pas utiliser la clé secrète de production en local
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-dev-key-change-it-in-prod')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+# SÉCURITÉ : DEBUG doit être à False en production
+DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = ['*'] # À restreindre à votre domaine final plus tard
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,djagogestion-api.onrender.com').split(',')
 
 # Application definition
 
@@ -136,7 +136,11 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
 }
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = os.environ.get(
+    'CORS_ALLOWED_ORIGINS', 
+    'http://localhost:5173,http://127.0.0.1:5173,https://djagogestion.vercel.app'
+).split(',')
+CORS_ALLOW_CREDENTIALS = True
 
 AUTH_USER_MODEL = 'users.User'
 

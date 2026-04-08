@@ -13,6 +13,6 @@ services:
       - key: DEBUG
         value: "False"
       - key: DATABASE_URL
-        value: "postgresql://neondb_owner:npg_9XManRCGILu6@ep-bold-salad-an356dnw.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require"
+        sync: false # Configurer manuellement dans le tableau de bord Render
       - key: SECRET_KEY
         generateValue: true

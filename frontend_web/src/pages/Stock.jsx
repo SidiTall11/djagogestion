@@ -403,17 +403,41 @@ export default function Stock() {
               <h2>Produit</h2>
               <X cursor="pointer" onClick={() => setShowProductModal(false)}/>
             </div>
-            <form onSubmit={handleSaveProduct} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <input type="text" placeholder="Nom" required value={currentProduct.name} onChange={e => setCurrentProduct({...currentProduct, name: e.target.value})} style={{ padding: '12px', borderRadius: '8px', background: 'rgba(255,255,255,0.1)', color: 'white', border: 'none' }} />
-              <select required value={currentProduct.category} onChange={e => setCurrentProduct({...currentProduct, category: e.target.value})} style={{ padding: '12px', borderRadius: '8px', background: '#1e293b', color: 'white', border: '1px solid var(--glass-border)' }}>
-                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <input type="number" required placeholder="Prix Achat" value={currentProduct.purchase_price} onChange={e => setCurrentProduct({...currentProduct, purchase_price: e.target.value})} style={{ padding: '12px', borderRadius: '8px', background: 'rgba(255,255,255,0.1)', color: 'white', border: 'none' }} />
-                <input type="number" required placeholder="Prix Vente" value={currentProduct.sale_price} onChange={e => setCurrentProduct({...currentProduct, sale_price: e.target.value})} style={{ padding: '12px', borderRadius: '8px', background: 'rgba(255,255,255,0.1)', color: 'white', border: 'none' }} />
+            <form onSubmit={handleSaveProduct} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Nom du produit</label>
+                <input type="text" placeholder="Ex: Laptop Pro 15" required value={currentProduct.name} onChange={e => setCurrentProduct({...currentProduct, name: e.target.value})} style={{ padding: '12px', borderRadius: '8px', background: 'rgba(255,255,255,0.08)', color: 'white', border: '1px solid var(--glass-border)' }} />
               </div>
-              <input type="file" onChange={e => setCurrentProduct({...currentProduct, image: e.target.files[0]})} />
-              <button className="btn-primary" type="submit">Sauvegarder</button>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Catégorie</label>
+                <select required value={currentProduct.category} onChange={e => setCurrentProduct({...currentProduct, category: e.target.value})} style={{ padding: '12px', borderRadius: '8px', background: '#1e293b', color: 'white', border: '1px solid var(--glass-border)' }}>
+                  <option value="">Sélectionner une catégorie</option>
+                  {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Prix d'achat (FCFA)</label>
+                <input type="number" required placeholder="Prix payé au fournisseur" value={currentProduct.purchase_price} onChange={e => setCurrentProduct({...currentProduct, purchase_price: e.target.value})} style={{ padding: '12px', borderRadius: '8px', background: 'rgba(255,255,255,0.08)', color: 'white', border: '1px solid var(--glass-border)' }} />
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Prix de vente (FCFA)</label>
+                <input type="number" required placeholder="Prix de vente au client" value={currentProduct.sale_price} onChange={e => setCurrentProduct({...currentProduct, sale_price: e.target.value})} style={{ padding: '12px', borderRadius: '8px', background: 'rgba(255,255,255,0.08)', color: 'white', border: '1px solid var(--glass-border)' }} />
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Seuil d'alerte stock (Min)</label>
+                <input type="number" required placeholder="Alerte si stock inférieur à..." value={currentProduct.min_stock_threshold} onChange={e => setCurrentProduct({...currentProduct, min_stock_threshold: e.target.value})} style={{ padding: '12px', borderRadius: '8px', background: 'rgba(255,255,255,0.08)', color: 'white', border: '1px solid var(--glass-border)' }} />
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Image du produit (Optionnel)</label>
+                <input type="file" onChange={e => setCurrentProduct({...currentProduct, image: e.target.files[0]})} style={{ fontSize: '0.8rem' }} />
+              </div>
+
+              <button className="btn-primary" type="submit" style={{ marginTop: '10px', padding: '14px' }}>Sauvegarder le produit</button>
             </form>
           </div>
         </div>

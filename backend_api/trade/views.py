@@ -31,7 +31,11 @@ class PurchaseViewSet(viewsets.ModelViewSet):
     queryset = Purchase.objects.none()
 
     def get_queryset(self):
-        qs = Purchase.objects.filter(enterprise=self.request.user.enterprise).order_by('-date')
+        qs = Purchase.objects.filter(enterprise=self.request.user.enterprise)\
+            .select_related('supplier')\
+            .prefetch_related('items__product')\
+            .order_by('-date')
+        
         supplier_id = self.request.query_params.get('supplier')
         if supplier_id:
             qs = qs.filter(supplier_id=supplier_id)
@@ -46,7 +50,11 @@ class SaleViewSet(viewsets.ModelViewSet):
     queryset = Sale.objects.none()
 
     def get_queryset(self):
-        qs = Sale.objects.filter(enterprise=self.request.user.enterprise).order_by('-date')
+        qs = Sale.objects.filter(enterprise=self.request.user.enterprise)\
+            .select_related('customer')\
+            .prefetch_related('items__product')\
+            .order_by('-date')
+            
         customer_id = self.request.query_params.get('customer')
         if customer_id:
             qs = qs.filter(customer_id=customer_id)
