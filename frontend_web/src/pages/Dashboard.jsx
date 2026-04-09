@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import {
   TrendingUp, TrendingDown, DollarSign, DownloadCloud,
   AlertTriangle, Package, ShoppingCart, ArrowUpRight,
@@ -7,25 +7,14 @@ import {
 } from 'lucide-react';
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis,
-  CartesianGrid, Tooltip, ResponsiveContainer, Legend
+  CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import api from '../api/api';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-const fmt = (n) => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-
-const getPeriodStart = (period) => {
-  const now = new Date();
-  switch (period) {
-    case 'today': { const d = new Date(now); d.setHours(0,0,0,0); return d; }
-    case 'week':  { const d = new Date(now); d.setDate(d.getDate() - 6); d.setHours(0,0,0,0); return d; }
-    case 'month': { return new Date(now.getFullYear(), now.getMonth(), 1); }
-    case 'year':  { return new Date(now.getFullYear(), 0, 1); }
-    default: return new Date(0);
-  }
-};
+const fmt = (n) => Math.round(n || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 
 // ─── Sous-composants ──────────────────────────────────────────────────────────
 
@@ -48,9 +37,7 @@ function KpiCard({ title, value, icon: Icon, color, sub, trend, trendLabel }) {
     onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 12px 30px rgba(0,0,0,0.4)'; }}
     onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
     >
-      {/* Fond décoratif */}
       <div style={{ position: 'absolute', top: -20, right: -20, width: 100, height: 100, borderRadius: '50%', background: color, opacity: 0.07 }} />
-
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div style={{ padding: '10px', borderRadius: '10px', background: `${color}20` }}>
           <Icon size={22} color={color} />
@@ -67,7 +54,6 @@ function KpiCard({ title, value, icon: Icon, color, sub, trend, trendLabel }) {
           </div>
         )}
       </div>
-
       <div>
         <div style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: '500', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{title}</div>
         <div style={{ fontSize: '1.75rem', fontWeight: '800', color: '#f8fafc', lineHeight: 1.1 }}>{value}</div>
@@ -143,7 +129,6 @@ export default function Dashboard() {
     setGoalInput('');
   };
 
-  // ─── Export PDF ──────────────────────────────────────────────────────────────
   const exportPDF = () => {
     if (!data) return;
     const { summary, chart_data } = data;
@@ -180,6 +165,13 @@ export default function Dashboard() {
     doc.save('DjagoGestion_Rapport_Comptable.pdf');
   };
 
+  const periodButtons = [
+    { key: 'today', label: "Aujourd'hui" },
+    { key: 'week',  label: '7 jours' },
+    { key: 'month', label: 'Ce mois' },
+    { key: 'year',  label: 'Cette année' },
+  ];
+
   if (loading && !data) return (
     <div className="main-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh' }}>
       <div style={{ textAlign: 'center', color: '#94a3b8' }}>
@@ -189,27 +181,18 @@ export default function Dashboard() {
     </div>
   );
 
-  const { summary, trends, chart_data, top_products, recent_transactions, critical_stock } = data;
-
-  const currentMonthRevenue = summary.total_revenues; // Simplification pour l'objectif si on est en vue mensuelle
-  const goalProgress = monthlyGoal > 0 ? Math.min((summary.total_revenues / monthlyGoal) * 100, 100) : 0;
-
-
-  const periodButtons = [
-    { key: 'today', label: "Aujourd'hui" },
-    { key: 'week',  label: '7 jours' },
-    { key: 'month', label: 'Ce mois' },
-    { key: 'year',  label: 'Cette année' },
-  ];
-
-  if (loading) return (
+  // Sécurité si data est null (ex: erreur API)
+  if (!data) return (
     <div className="main-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh' }}>
-      <div style={{ textAlign: 'center', color: '#94a3b8' }}>
-        <BarChart2 size={48} style={{ marginBottom: '16px', opacity: 0.4 }} />
-        <p>Chargement du tableau de bord...</p>
+      <div style={{ textAlign: 'center', color: '#ef4444' }}>
+        <AlertTriangle size={48} style={{ marginBottom: '16px', opacity: 0.4 }} />
+        <p>Erreur de chargement. Veuillez rafraîchir la page.</p>
       </div>
     </div>
   );
+
+  const { summary, trends, chart_data, top_products, recent_transactions, critical_stock } = data;
+  const goalProgress = monthlyGoal > 0 ? Math.min((summary.total_revenues / monthlyGoal) * 100, 100) : 0;
 
   return (
     <div className="main-content" style={{ maxWidth: '1400px' }}>
@@ -221,7 +204,6 @@ export default function Dashboard() {
           <p style={{ color: '#94a3b8', marginTop: '4px', fontSize: '0.9rem' }}>Vue d'ensemble en temps réel de votre activité</p>
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-          {/* Filtre de Période */}
           <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', padding: '4px', gap: '2px' }}>
             {periodButtons.map(pb => (
               <button key={pb.key} onClick={() => setPeriod(pb.key)} style={{
@@ -238,15 +220,15 @@ export default function Dashboard() {
       </div>
 
       {/* ── Alertes Stock Critique ── */}
-      {criticalStock.length > 0 && (
+      {(critical_stock || []).length > 0 && (
         <div style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '12px', padding: '16px 20px', marginBottom: '28px', display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
           <AlertTriangle size={22} color="#ef4444" style={{ flexShrink: 0, marginTop: '2px' }} />
           <div>
-            <div style={{ fontWeight: '700', color: '#ef4444', marginBottom: '6px' }}>⚠ Alerte : {criticalStock.length} produit(s) en stock critique</div>
+            <div style={{ fontWeight: '700', color: '#ef4444', marginBottom: '6px' }}>⚠ Alerte : {critical_stock.length} produit(s) en stock critique</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-              {criticalStock.map(p => (
+              {critical_stock.map(p => (
                 <span key={p.id} style={{ padding: '3px 10px', borderRadius: '20px', background: 'rgba(239,68,68,0.15)', color: '#fca5a5', fontSize: '0.82rem', fontWeight: '600' }}>
-                  {p.name} — {p.stock_quantity} restant(s)
+                  {p.name} — {p.stock_quantity ?? 0} restant(s)
                 </span>
               ))}
             </div>
@@ -288,77 +270,54 @@ export default function Dashboard() {
 
       {/* ── Graphiques Séparés ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '20px', marginBottom: '28px' }}>
-        
-        {/* Graphique Revenus */}
         <div style={{ background: 'rgba(30,41,59,0.7)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '24px' }}>
           <SectionTitle icon={TrendingUp} title="Évolution des Revenus" color="#4F46E5" />
-          {chartData.length === 0 ? (
+          {(chart_data || []).length === 0 ? (
             <div style={{ textAlign: 'center', padding: '60px 0', color: '#475569' }}>
               <TrendingUp size={40} style={{ marginBottom: '12px', opacity: 0.3 }} />
               <p>Aucune donnée pour cette période</p>
             </div>
           ) : (
             <ResponsiveContainer width="100%" height={240}>
-              {period === 'year' ? (
-                <BarChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                  <XAxis dataKey="label" stroke="#475569" tick={{ fontSize: 11 }} />
-                  <YAxis stroke="#475569" tick={{ fontSize: 11 }} tickFormatter={v => `${fmt(v)}`} />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Bar dataKey="Revenus" fill="#4F46E5" radius={[4, 4, 0, 0]} barSize={40} />
-                </BarChart>
-              ) : (
-                <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="gRevenu" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#4F46E5" stopOpacity={0.4}/>
-                      <stop offset="95%" stopColor="#4F46E5" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                  <XAxis dataKey="label" stroke="#475569" tick={{ fontSize: 11 }} />
-                  <YAxis stroke="#475569" tick={{ fontSize: 11 }} tickFormatter={v => `${fmt(v)}`} />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Area type="monotone" dataKey="Revenus" stroke="#4F46E5" strokeWidth={2} fill="url(#gRevenu)" dot={{ r: 3, fill: '#4F46E5' }} activeDot={{ r: 6 }} />
-                </AreaChart>
-              )}
+              <AreaChart data={chart_data} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="gRevenu" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#4F46E5" stopOpacity={0.4}/>
+                    <stop offset="95%" stopColor="#4F46E5" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                <XAxis dataKey="label" stroke="#475569" tick={{ fontSize: 11 }} />
+                <YAxis stroke="#475569" tick={{ fontSize: 11 }} tickFormatter={v => `${fmt(v)}`} />
+                <Tooltip content={<CustomTooltip />} />
+                <Area type="monotone" dataKey="Revenus" stroke="#4F46E5" strokeWidth={2} fill="url(#gRevenu)" dot={{ r: 3, fill: '#4F46E5' }} activeDot={{ r: 6 }} />
+              </AreaChart>
             </ResponsiveContainer>
           )}
         </div>
 
-        {/* Graphique Dépenses */}
         <div style={{ background: 'rgba(30,41,59,0.7)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '24px' }}>
           <SectionTitle icon={TrendingDown} title="Évolution des Dépenses" color="#ef4444" />
-          {chartData.length === 0 ? (
+          {(chart_data || []).length === 0 ? (
             <div style={{ textAlign: 'center', padding: '60px 0', color: '#475569' }}>
               <TrendingDown size={40} style={{ marginBottom: '12px', opacity: 0.3 }} />
               <p>Aucune donnée pour cette période</p>
             </div>
           ) : (
             <ResponsiveContainer width="100%" height={240}>
-              {period === 'year' ? (
-                <BarChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                  <XAxis dataKey="label" stroke="#475569" tick={{ fontSize: 11 }} />
-                  <YAxis stroke="#475569" tick={{ fontSize: 11 }} tickFormatter={v => `${fmt(v)}`} />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Bar dataKey="Dépenses" fill="#ef4444" radius={[4, 4, 0, 0]} barSize={40} />
-                </BarChart>
-              ) : (
-                <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="gDepense" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                  <XAxis dataKey="label" stroke="#475569" tick={{ fontSize: 11 }} />
-                  <YAxis stroke="#475569" tick={{ fontSize: 11 }} tickFormatter={v => `${fmt(v)}`} />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Area type="monotone" dataKey="Dépenses" stroke="#ef4444" strokeWidth={2} fill="url(#gDepense)" dot={{ r: 3, fill: '#ef4444' }} activeDot={{ r: 6 }} />
-                </AreaChart>
-              )}
+              <AreaChart data={chart_data} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="gDepense" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                <XAxis dataKey="label" stroke="#475569" tick={{ fontSize: 11 }} />
+                <YAxis stroke="#475569" tick={{ fontSize: 11 }} tickFormatter={v => `${fmt(v)}`} />
+                <Tooltip content={<CustomTooltip />} />
+                <Area type="monotone" dataKey="Dépenses" stroke="#ef4444" strokeWidth={2} fill="url(#gDepense)" dot={{ r: 3, fill: '#ef4444' }} activeDot={{ r: 6 }} />
+              </AreaChart>
             </ResponsiveContainer>
           )}
         </div>
@@ -366,16 +325,14 @@ export default function Dashboard() {
 
       {/* ── Top 5 + Dernières Transactions ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', marginBottom: '28px' }}>
-
-        {/* Top 5 Produits */}
         <div style={{ background: 'rgba(30,41,59,0.7)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '24px' }}>
           <SectionTitle icon={Package} title="Top 5 Produits les plus vendus" color="#10b981" />
-          {top5Products.length === 0 ? (
+          {(top_products || []).length === 0 ? (
             <div style={{ textAlign: 'center', padding: '30px 0', color: '#475569', fontSize: '0.9rem' }}>Aucune vente sur cette période.</div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {top5Products.map((p, i) => {
-                const maxRev = top5Products[0].revenue;
+              {top_products.map((p, i) => {
+                const maxRev = top_products[0].revenue;
                 const pct = maxRev > 0 ? (p.revenue / maxRev) * 100 : 0;
                 const colors = ['#4F46E5', '#10b981', '#f59e0b', '#ec4899', '#06b6d4'];
                 return (
@@ -396,14 +353,13 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Dernières Transactions */}
         <div style={{ background: 'rgba(30,41,59,0.7)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '24px', display: 'flex', flexDirection: 'column' }}>
           <SectionTitle icon={Clock} title="Dernières Transactions" color="#f59e0b" />
-          {recentTransactions.length === 0 ? (
+          {(recent_transactions || []).length === 0 ? (
             <div style={{ textAlign: 'center', padding: '30px 0', color: '#475569', fontSize: '0.9rem' }}>Aucune transaction sur cette période.</div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', overflowY: 'auto', maxHeight: '280px' }}>
-              {recentTransactions.map((tx, i) => (
+              {recent_transactions.map((tx, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', borderRadius: '10px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <div style={{ padding: '8px', borderRadius: '8px', background: tx.type === 'vente' ? 'rgba(79,70,229,0.15)' : 'rgba(245,158,11,0.15)' }}>
@@ -450,7 +406,7 @@ export default function Dashboard() {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
               <span style={{ fontSize: '0.9rem', color: '#94a3b8' }}>
-                <span style={{ color: '#f8fafc', fontWeight: '700' }}>{fmt(currentMonthRevenue)} FCFA</span> réalisés ce mois
+                <span style={{ color: '#f8fafc', fontWeight: '700' }}>{fmt(summary.total_revenues)} FCFA</span> réalisés ce mois
               </span>
               <span style={{ fontSize: '0.9rem', fontWeight: '700', color: '#ec4899' }}>{goalProgress.toFixed(1)}%</span>
             </div>
@@ -464,7 +420,7 @@ export default function Dashboard() {
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', fontSize: '0.78rem', color: '#475569' }}>
               <span>0 FCFA</span>
               <span style={{ color: goalProgress >= 100 ? '#10b981' : '#475569' }}>
-                {goalProgress >= 100 ? '🎉 Objectif atteint !' : `Reste : ${fmt(monthlyGoal - currentMonthRevenue)} FCFA`}
+                {goalProgress >= 100 ? '🎉 Objectif atteint !' : `Reste : ${fmt(monthlyGoal - summary.total_revenues)} FCFA`}
               </span>
               <span>Objectif : {fmt(monthlyGoal)} FCFA</span>
             </div>
