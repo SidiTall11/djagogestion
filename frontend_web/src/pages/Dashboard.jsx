@@ -109,12 +109,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 // ─── Composant Principal ──────────────────────────────────────────────────────
 export default function Dashboard() {
-  const [sales, setSales] = useState([]);
-  const [purchases, setPurchases] = useState([]);
-  const [expenses, setExpenses] = useState([]);
-  const [products, setProducts] = useState([]);
-  const [receivables, setReceivables] = useState([]);
-  const [debts, setDebts] = useState([]);
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState('month');
   const [goalInput, setGoalInput] = useState('');
@@ -123,31 +118,14 @@ export default function Dashboard() {
     return saved ? parseFloat(saved) : 0;
   });
   const [editingGoal, setEditingGoal] = useState(false);
-  const [summary, setSummary] = useState({
-    total_revenues: 0, total_expenses: 0, net_result: 0, total_debts: 0, total_receivables: 0 
-  });
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchData(); }, [period]);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [sRes, pRes, eRes, prodRes, recRes, dRes, sumRes] = await Promise.all([
-        api.get('sales/?limit=1000'),
-        api.get('purchases/?limit=1000'),
-        api.get('expenses/?limit=1000'),
-        api.get('products/?limit=1000'),
-        api.get('receivables/?limit=1000'),
-        api.get('debts/?limit=1000'),
-        api.get('finance/summary/')
-      ]);
-      setSales(sRes.data.results ?? sRes.data);
-      setPurchases(pRes.data.results ?? pRes.data);
-      setExpenses(eRes.data.results ?? eRes.data);
-      setProducts(prodRes.data.results ?? prodRes.data);
-      setReceivables(recRes.data.results ?? recRes.data);
-      setDebts(dRes.data.results ?? dRes.data);
-      setSummary(sumRes.data);
+      const res = await api.get(`finance/dashboard/?period=${period}`);
+      setData(res.data);
     } catch (err) {
       console.error(err);
     } finally {
@@ -165,117 +143,10 @@ export default function Dashboard() {
     setGoalInput('');
   };
 
-  // ─── Filtrage par période ────────────────────────────────────────────────────
-  const filterByPeriod = useCallback((items, dateField = 'date') => {
-    const start = getPeriodStart(period);
-    return items.filter(i => new Date(i[dateField]) >= start);
-  }, [period]);
-
-  const filteredSales = filterByPeriod(sales);
-  const filteredExpenses = filterByPeriod(expenses);
-  const filteredPurchases = filterByPeriod(purchases);
-
-  // ─── KPIs ────────────────────────────────────────────────────────────────────
-  // KPIs Globaux (Stats réelles du backend)
-  const totalRevenue = summary.total_revenues;
-  const totalExpenses = summary.total_expenses;
-  const netProfit = summary.net_result;
-  const totalReceivables = summary.total_receivables;
-  const totalDebts = summary.total_debts;
-
-  // Marge calculée localement pour le filtrage périodique
-  const totalMargin = filteredSales.reduce((a, s) => a + parseFloat(s.total_margin || 0), 0);
-
-  // Tendances (comparaison avec la période précédente de même durée)
-  const getTrend = (current, allItems, dateField = 'date') => {
-    const start = getPeriodStart(period);
-    const duration = Date.now() - start.getTime();
-    const prevStart = new Date(start.getTime() - duration);
-    const prev = allItems
-      .filter(i => { const d = new Date(i[dateField]); return d >= prevStart && d < start; })
-      .reduce((a, i) => a + parseFloat(i.total_amount || i.amount || 0), 0);
-    if (prev === 0) return 0;
-    return ((current - prev) / prev) * 100;
-  };
-
-  const revenueTrend = getTrend(totalRevenue, sales);
-  const expTrend = getTrend(totalExpenses, expenses);
-
-  // ─── Données Graphiques (Groupement intelligent) ───────────────────────────
-  const chartData = (() => {
-    const map = {};
-    
-    const getGroupKey = (dateString) => {
-      const d = new Date(dateString);
-      if (period === 'year') {
-        const m = d.toLocaleDateString('fr-FR', { month: 'short' });
-        return m.charAt(0).toUpperCase() + m.slice(1);
-      } else if (period === 'today') {
-        return d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-      } else {
-        return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
-      }
-    };
-
-    const getSortValue = (dateString) => new Date(dateString).getTime();
-
-    filteredSales.forEach(s => {
-      const k = getGroupKey(s.date);
-      if (!map[k]) map[k] = { label: k, Revenus: 0, Dépenses: 0, _sort: getSortValue(s.date) };
-      map[k].Revenus += parseFloat(s.total_amount || 0);
-    });
-    filteredExpenses.forEach(e => {
-      const k = getGroupKey(e.date);
-      if (!map[k]) map[k] = { label: k, Revenus: 0, Dépenses: 0, _sort: getSortValue(e.date) };
-      map[k].Dépenses += parseFloat(e.amount || 0);
-    });
-    filteredPurchases.forEach(p => {
-      const k = getGroupKey(p.date);
-      if (!map[k]) map[k] = { label: k, Revenus: 0, Dépenses: 0, _sort: getSortValue(p.date) };
-      map[k].Dépenses += parseFloat(p.total_amount || 0);
-    });
-    
-    return Object.values(map).sort((a, b) => a._sort - b._sort);
-  })();
-
-  // ─── Top 5 Produits ──────────────────────────────────────────────────────────
-  const top5Products = (() => {
-    const map = {};
-    filteredSales.forEach(sale => {
-      (sale.items || []).forEach(item => {
-        const name = item.product_name || `Produit #${item.product}`;
-        if (!map[name]) map[name] = { name, qty: 0, revenue: 0 };
-        map[name].qty += item.quantity;
-        map[name].revenue += item.quantity * parseFloat(item.unit_price || 0);
-      });
-    });
-    return Object.values(map).sort((a, b) => b.revenue - a.revenue).slice(0, 5);
-  })();
-
-  // ─── Dernières Transactions ──────────────────────────────────────────────────
-  const recentTransactions = [
-    ...filteredSales.map(s => ({ type: 'vente', amount: parseFloat(s.total_amount), date: s.date, label: s.customer_name || 'Client de passage', is_credit: s.is_credit })),
-    ...filteredPurchases.map(p => ({ type: 'achat', amount: parseFloat(p.total_amount), date: p.date, label: p.supplier_name || 'Fournisseur', is_credit: p.is_credit })),
-  ].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 7);
-
-  // ─── Alertes Stock ───────────────────────────────────────────────────────────
-  const criticalStock = products.filter(p => p.stock_quantity <= p.min_stock_threshold);
-
-  // Créances & Dettes (KPI Cards) - Utilisation des valeurs summary
-  const unpaidReceivables = receivables.filter(r => !r.is_paid);
-  const unpaidDebts = debts.filter(d => !d.is_paid);
-
-  // ─── Objectif mensuel ────────────────────────────────────────────────────────
-  const currentMonthRevenue = (() => {
-    const now = new Date();
-    return sales
-      .filter(s => { const d = new Date(s.date); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); })
-      .reduce((a, s) => a + parseFloat(s.total_amount || 0), 0);
-  })();
-  const goalProgress = monthlyGoal > 0 ? Math.min((currentMonthRevenue / monthlyGoal) * 100, 100) : 0;
-
   // ─── Export PDF ──────────────────────────────────────────────────────────────
   const exportPDF = () => {
+    if (!data) return;
+    const { summary, chart_data } = data;
     const doc = new jsPDF();
     const periodLabels = { today: "Aujourd'hui", week: 'Cette semaine', month: 'Ce mois', year: 'Cette année' };
 
@@ -293,14 +164,14 @@ export default function Dashboard() {
     doc.text('Indicateurs clés', 14, 36);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
-    doc.text(`Chiffre d'Affaires : ${fmt(totalRevenue)} FCFA`, 14, 44);
-    doc.text(`Marge Brute       : ${fmt(totalMargin)} FCFA`, 14, 51);
-    doc.text(`Total Depenses    : ${fmt(totalExpenses)} FCFA`, 14, 58);
-    doc.text(`Benefice Net      : ${fmt(netProfit)} FCFA`, 14, 65);
+    doc.text(`Chiffre d'Affaires : ${fmt(summary.total_revenues)} FCFA`, 14, 44);
+    doc.text(`Marge Brute       : ${fmt(summary.total_margin)} FCFA`, 14, 51);
+    doc.text(`Total Depenses    : ${fmt(summary.total_expenses)} FCFA`, 14, 58);
+    doc.text(`Benefice Net      : ${fmt(summary.net_profit)} FCFA`, 14, 65);
 
     autoTable(doc, {
       head: [['Période', 'Revenus (FCFA)', 'Depenses (FCFA)']],
-      body: chartData.map(d => [d.label, fmt(d.Revenus), fmt(d.Dépenses)]),
+      body: chart_data.map(d => [d.label, fmt(d.Revenus), fmt(d.Dépenses)]),
       startY: 75,
       theme: 'grid',
       headStyles: { fillColor: [79, 70, 229] },
@@ -308,6 +179,21 @@ export default function Dashboard() {
 
     doc.save('DjagoGestion_Rapport_Comptable.pdf');
   };
+
+  if (loading && !data) return (
+    <div className="main-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh' }}>
+      <div style={{ textAlign: 'center', color: '#94a3b8' }}>
+        <BarChart2 size={48} style={{ marginBottom: '16px', opacity: 0.4 }} />
+        <p>Chargement du tableau de bord...</p>
+      </div>
+    </div>
+  );
+
+  const { summary, trends, chart_data, top_products, recent_transactions, critical_stock } = data;
+
+  const currentMonthRevenue = summary.total_revenues; // Simplification pour l'objectif si on est en vue mensuelle
+  const goalProgress = monthlyGoal > 0 ? Math.min((summary.total_revenues / monthlyGoal) * 100, 100) : 0;
+
 
   const periodButtons = [
     { key: 'today', label: "Aujourd'hui" },
@@ -370,10 +256,10 @@ export default function Dashboard() {
 
       {/* ── KPI Cards ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px', marginBottom: '28px' }}>
-        <KpiCard title="Chiffre d'Affaires" value={`${fmt(totalRevenue)} FCFA`} icon={DollarSign} color="#4F46E5" trend={revenueTrend} trendLabel="vs période précédente" />
-        <KpiCard title="Marge Brute" value={`${fmt(totalMargin)} FCFA`} icon={TrendingUp} color="#10b981" sub={totalRevenue > 0 ? `Taux: ${((totalMargin/totalRevenue)*100).toFixed(1)}%` : ''} />
-        <KpiCard title="Total Dépenses" value={`${fmt(totalExpenses)} FCFA`} icon={TrendingDown} color="#ef4444" trend={expTrend} trendLabel="vs période précédente" />
-        <KpiCard title="Bénéfice Net" value={`${fmt(netProfit)} FCFA`} icon={netProfit >= 0 ? ArrowUpRight : ArrowDownRight} color={netProfit >= 0 ? '#10b981' : '#ef4444'} sub="Marge − Dépenses" />
+        <KpiCard title="Chiffre d'Affaires" value={`${fmt(summary.total_revenues)} FCFA`} icon={DollarSign} color="#4F46E5" trend={trends.revenue} trendLabel="vs période précédente" />
+        <KpiCard title="Marge Brute" value={`${fmt(summary.total_margin)} FCFA`} icon={TrendingUp} color="#10b981" sub={summary.total_revenues > 0 ? `Taux: ${((summary.total_margin/summary.total_revenues)*100).toFixed(1)}%` : ''} />
+        <KpiCard title="Total Dépenses" value={`${fmt(summary.total_expenses)} FCFA`} icon={TrendingDown} color="#ef4444" trend={trends.expense} trendLabel="vs période précédente" />
+        <KpiCard title="Bénéfice Net" value={`${fmt(summary.net_profit)} FCFA`} icon={summary.net_profit >= 0 ? ArrowUpRight : ArrowDownRight} color={summary.net_profit >= 0 ? '#10b981' : '#ef4444'} sub="Marge − Dépenses" />
       </div>
 
       {/* ── Créances & Dettes ── */}
@@ -384,8 +270,8 @@ export default function Dashboard() {
           </div>
           <div>
             <div style={{ fontSize: '0.78rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: '600' }}>Créances Clients</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: '800', color: '#10b981' }}>{fmt(totalReceivables)} FCFA</div>
-            <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '2px' }}>{unpaidReceivables.length} vente(s) à crédit impayée(s)</div>
+            <div style={{ fontSize: '1.5rem', fontWeight: '800', color: '#10b981' }}>{fmt(summary.total_receivables)} FCFA</div>
+            <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '2px' }}>{summary.unpaid_recs_count} vente(s) à crédit impayée(s)</div>
           </div>
         </div>
         <div style={{ background: 'rgba(30,41,59,0.7)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -394,8 +280,8 @@ export default function Dashboard() {
           </div>
           <div>
             <div style={{ fontSize: '0.78rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: '600' }}>Dettes Fournisseurs</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: '800', color: '#f59e0b' }}>{fmt(totalDebts)} FCFA</div>
-            <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '2px' }}>{unpaidDebts.length} achat(s) à crédit non remboursé(s)</div>
+            <div style={{ fontSize: '1.5rem', fontWeight: '800', color: '#f59e0b' }}>{fmt(summary.total_debts)} FCFA</div>
+            <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '2px' }}>{summary.unpaid_debts_count} achat(s) à crédit non remboursé(s)</div>
           </div>
         </div>
       </div>

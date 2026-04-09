@@ -126,9 +126,7 @@ export default function Login() {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
-                <Link to="/forgot-password" style={{ color: 'var(--primary)', fontSize: '0.85rem', textDecoration: 'none' }}>Mot de passe oublié ?</Link>
-              </div>
+
 
               <button type="submit" className="btn-primary login-btn-spacer" disabled={loading} style={{ marginTop: '8px' }}>
                 {loading ? 'Authentification...' : 'Se Connecter'} <ArrowRight size={20} />

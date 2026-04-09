@@ -7,7 +7,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from users.views import RegisterView, AgentViewSet, UserMeView, EnterpriseUpdateView
 from catalog.views import CategoryViewSet, ProductViewSet, StockMovementViewSet
 from trade.views import SupplierViewSet, CustomerViewSet, PurchaseViewSet, SaleViewSet
-from finance.views import RevenueViewSet, ExpenseViewSet, DebtViewSet, ReceivableViewSet, BudgetViewSet, FinanceSummaryView, AdvancedAnalyticsView
+from finance.views import RevenueViewSet, ExpenseViewSet, DebtViewSet, ReceivableViewSet, BudgetViewSet, FinanceSummaryView, AdvancedAnalyticsView, DashboardDataView
 
 router = DefaultRouter()
 router.register(r'categories', CategoryViewSet)
@@ -29,11 +29,11 @@ urlpatterns = [
     path('api/register/', RegisterView.as_view(), name='register'),
     path('api/auth/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
     path('api/users/me/', UserMeView.as_view(), name='user_me'),
     path('api/users/me/enterprise/', EnterpriseUpdateView.as_view(), name='enterprise_update'),
     path('api/finance/summary/', FinanceSummaryView.as_view(), name='finance_summary'),
     path('api/finance/analytics/', AdvancedAnalyticsView.as_view(), name='finance_analytics'),
+    path('api/finance/dashboard/', DashboardDataView.as_view(), name='dashboard_data'),
     path('api/', include(router.urls)),
 ]
 

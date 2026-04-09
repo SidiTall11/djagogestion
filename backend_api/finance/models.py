@@ -6,7 +6,7 @@ class Revenue(models.Model):
     amount = models.DecimalField(max_digits=12, decimal_places=2)
     category = models.CharField(max_length=100, default='Vente')
     description = models.TextField(blank=True, null=True)
-    date = models.DateTimeField(auto_now_add=True)
+    date = models.DateTimeField(auto_now_add=True, db_index=True)
     
     def __str__(self):
         return f"Revenu: {self.amount} - {self.category}"
@@ -20,7 +20,7 @@ class Expense(models.Model):
     category = models.CharField(max_length=100, default='Achat')
     description = models.TextField(blank=True, null=True)
     is_recurring = models.BooleanField(default=False)
-    date = models.DateTimeField(auto_now_add=True)
+    date = models.DateTimeField(auto_now_add=True, db_index=True)
 
     def __str__(self):
         return f"Dépense: {self.amount} - {self.category}"
@@ -35,8 +35,8 @@ class Debt(models.Model):
     amount_total = models.DecimalField(max_digits=12, decimal_places=2)
     amount_paid = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     due_date = models.DateField(blank=True, null=True)
-    is_paid = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
+    is_paid = models.BooleanField(default=False, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
     def __str__(self):
         return f"Dette: {self.description or 'N/A'} - {self.amount_total}"
@@ -51,8 +51,8 @@ class Receivable(models.Model):
     amount_total = models.DecimalField(max_digits=12, decimal_places=2)
     amount_paid = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     due_date = models.DateField(blank=True, null=True)
-    is_paid = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
+    is_paid = models.BooleanField(default=False, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
     def __str__(self):
         return f"Créance: {self.description or 'N/A'} - {self.amount_total}"

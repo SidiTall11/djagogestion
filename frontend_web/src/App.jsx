@@ -7,8 +7,7 @@ import PWAInstallButton from './components/PWAInstallButton';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import ForgotPassword from './pages/ForgotPassword';
-import ResetPassword from './pages/ResetPassword';
+
 import Stock from './pages/Stock';
 import NewSale from './pages/NewSale';
 import Purchases from './pages/Purchases';
@@ -150,8 +149,7 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
+
         
         {/* Protected Routes Layout */}
         <Route element={<PrivateLayout />}>

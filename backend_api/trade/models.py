@@ -33,9 +33,9 @@ class Purchase(models.Model):
     enterprise = models.ForeignKey(Enterprise, on_delete=models.CASCADE, related_name='purchases')
     supplier = models.ForeignKey(Supplier, on_delete=models.SET_NULL, null=True, blank=True)
     total_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    is_credit = models.BooleanField(default=False)
+    is_credit = models.BooleanField(default=False, db_index=True)
     debt = models.OneToOneField(Debt, on_delete=models.SET_NULL, null=True, blank=True)
-    date = models.DateTimeField(auto_now_add=True)
+    date = models.DateTimeField(auto_now_add=True, db_index=True)
 
     def __str__(self):
         return f"Achat #{self.id} - {self.total_amount}"
@@ -57,9 +57,9 @@ class Sale(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True)
     total_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     total_margin = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    is_credit = models.BooleanField(default=False)
+    is_credit = models.BooleanField(default=False, db_index=True)
     receivable = models.OneToOneField(Receivable, on_delete=models.SET_NULL, null=True, blank=True)
-    date = models.DateTimeField(auto_now_add=True)
+    date = models.DateTimeField(auto_now_add=True, db_index=True)
 
     def __str__(self):
         return f"Vente #{self.id} - {self.total_amount}"
