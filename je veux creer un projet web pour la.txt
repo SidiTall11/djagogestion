@@ -1,5 +1,4 @@
-je veux creer un projet web pour la gestion  des petite et moyenne entreprises et pour les commerçant.La base de donner sera mysql avec WAMPSERVER .Je vais te donner le cahier de charge puis le descriptif:
-Voici le cahier de charge:
+
 CAHIER DES CHARGES COMPLET ET DÉTAILLÉ
 Application de Gestion Financière et Commerciale Simplifiée & Intelligente
 1. PRÉSENTATION GÉNÉRALE DU PROJET
